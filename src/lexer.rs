@@ -15,16 +15,18 @@ impl Lexer {
     //     self.data.get_u8()
     // }
     fn next_token(&mut self) -> token::Token {
-        let c = self.data.split_to(1);
-        match &c[..] {
-            b"=" => token::Token::new(token::TokenType::Assign, c),
-            b";" => token::Token::new(token::TokenType::Semicolon, c),
-            b"(" => token::Token::new(token::TokenType::Lparne, c),
-            b")" => token::Token::new(token::TokenType::Rparne, c),
-            b"," => token::Token::new(token::TokenType::Comma, c),
-            b"+" => token::Token::new(token::TokenType::Plus, c),
-            b"{" => token::Token::new(token::TokenType::Lbrace, c),
-            b"}" => token::Token::new(token::TokenType::Rbrace, c),
+        let mut b = self.data.clone();
+        let literal = b.split_to(1);
+        let c = self.data.get_u8();
+        match c {
+            b'=' => token::Token::new(token::TokenType::Assign, literal),
+            b';' => token::Token::new(token::TokenType::Semicolon, literal),
+            b'(' => token::Token::new(token::TokenType::Lparne, literal),
+            b')' => token::Token::new(token::TokenType::Rparne, literal),
+            b',' => token::Token::new(token::TokenType::Comma, literal),
+            b'+' => token::Token::new(token::TokenType::Plus, literal),
+            b'{' => token::Token::new(token::TokenType::Lbrace, literal),
+            b'}' => token::Token::new(token::TokenType::Rbrace, literal),
             _ => token::Token::new(token::TokenType::Illegal, Bytes::new()),
         }
     }
