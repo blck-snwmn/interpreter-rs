@@ -164,6 +164,7 @@ mod test {
                 &expect.literal.to_ascii_lowercase()
             );
         }
+        // すべてが消費されている or is_whitespaceを満たすものだけで構成されているか確認
         assert!(
             l.data.iter().all(|s: &u8| Lexer::is_whitespace(*s)),
             "{:?}",
