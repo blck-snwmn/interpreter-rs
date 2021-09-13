@@ -1,12 +1,11 @@
 use bytes::{Buf, Bytes};
 
-use crate::token;
-struct Lexer {
+pub(crate) struct Lexer {
     data: Bytes,
 }
 
 impl Lexer {
-    fn new<'a>(input: String) -> Self {
+    pub(crate) fn new<'a>(input: String) -> Self {
         let data = Bytes::from(input);
         Self { data }
     }
@@ -14,7 +13,7 @@ impl Lexer {
     // fn read_char(&mut self) {
     //     self.data.get_u8()
     // }
-    fn next_token(&mut self) -> token::Token {
+    pub(crate) fn next_token(&mut self) -> token::Token {
         self.consume_white_space();
         // FIXME is_emptyの判定まわりをもう少し最適化したい
         if self.data.is_empty() {
