@@ -60,17 +60,7 @@ impl Lexer {
                 let literal = self.data.split_to(x);
 
                 // identifierかどうか
-                let x = &literal[..];
-                let token_type = match x {
-                    b"fn" => token::TokenType::Function,
-                    b"let" => token::TokenType::Let,
-                    b"true" => token::TokenType::True,
-                    b"false" => token::TokenType::False,
-                    b"if" => token::TokenType::If,
-                    b"else" => token::TokenType::Else,
-                    b"return" => token::TokenType::Retrun,
-                    _ => token::TokenType::Ident,
-                };
+                let token_type = Lexer::literal_to_token_type(&literal[..]);
 
                 // FIXME returnしているのを直す
                 return token::Token::new(token_type, literal);
@@ -98,6 +88,18 @@ impl Lexer {
     }
     const fn is_whitespace(s: u8) -> bool {
         matches!(s, b' ' | b'\t' | b'\n' | b'\r')
+    }
+    const fn literal_to_token_type(literal: &[u8]) -> token::TokenType {
+        match literal {
+            b"fn" => token::TokenType::Function,
+            b"let" => token::TokenType::Let,
+            b"true" => token::TokenType::True,
+            b"false" => token::TokenType::False,
+            b"if" => token::TokenType::If,
+            b"else" => token::TokenType::Else,
+            b"return" => token::TokenType::Retrun,
+            _ => token::TokenType::Ident,
+        }
     }
     fn consume_white_space(&mut self) {
         // 消費するスペース等を満たさない最初の位置を取得
