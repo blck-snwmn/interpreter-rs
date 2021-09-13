@@ -34,6 +34,12 @@ impl Lexer {
             b')' => token::Token::new(token::TokenType::Rparne, literal),
             b',' => token::Token::new(token::TokenType::Comma, literal),
             b'+' => token::Token::new(token::TokenType::Plus, literal),
+            b'-' => token::Token::new(token::TokenType::Minus, literal),
+            b'!' => token::Token::new(token::TokenType::Bang, literal),
+            b'/' => token::Token::new(token::TokenType::Slash, literal),
+            b'*' => token::Token::new(token::TokenType::Asterisk, literal),
+            b'<' => token::Token::new(token::TokenType::Lt, literal),
+            b'>' => token::Token::new(token::TokenType::Gt, literal),
             b'{' => token::Token::new(token::TokenType::Lbrace, literal),
             b'}' => token::Token::new(token::TokenType::Rbrace, literal),
             s if Lexer::is_letter(s) => {
@@ -103,6 +109,8 @@ mod test {
             x + y;
         };
         let result = add(five, ten);
+        !-/*5;
+        5 < 10 > 5;
         "
         .to_string();
 
@@ -144,6 +152,18 @@ mod test {
             Token::new(TokenType::Ident, Bytes::from(&b"ten"[..])),
             Token::new(TokenType::Rparne, Bytes::from(&b")"[..])),
             Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
+            Token::new(TokenType::Bang, Bytes::from(&b"!"[..])),
+            Token::new(TokenType::Minus, Bytes::from(&b"-"[..])),
+            Token::new(TokenType::Slash, Bytes::from(&b"/"[..])),
+            Token::new(TokenType::Asterisk, Bytes::from(&b"*"[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"5"[..])),
+            Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"5"[..])),
+            Token::new(TokenType::Lt, Bytes::from(&b"<"[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"10"[..])),
+            Token::new(TokenType::Gt, Bytes::from(&b">"[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"5"[..])),
+            Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
             Token::new(TokenType::Eof, Bytes::new()),
         ]
         .iter()
@@ -160,8 +180,8 @@ mod test {
                 &expect.literal[..],
                 "[{}]got={:?}, want={:?}",
                 i,
-                &token.literal.to_ascii_lowercase(),
-                &expect.literal.to_ascii_lowercase()
+                std::str::from_utf8(&token.literal[..]).unwrap(),
+                std::str::from_utf8(&expect.literal[..]).unwrap(),
             );
         }
         // すべてが消費されている or is_whitespaceを満たすものだけで構成されているか確認

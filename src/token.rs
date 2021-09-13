@@ -10,8 +10,15 @@ pub(crate) enum TokenType {
     Int,   // INT
 
     // operator
-    Assign, // =
-    Plus,   // +
+    Assign,   // =
+    Plus,     // +
+    Minus,    // -
+    Bang,     // !
+    Asterisk, // *
+    Slash,    // /
+
+    Lt, // <
+    Gt, // >
 
     Comma,     // ,
     Semicolon, // ;
