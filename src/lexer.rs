@@ -54,6 +54,11 @@ impl Lexer {
                 let token_type = match x {
                     b"fn" => token::TokenType::Function,
                     b"let" => token::TokenType::Let,
+                    b"true" => token::TokenType::True,
+                    b"false" => token::TokenType::False,
+                    b"if" => token::TokenType::If,
+                    b"else" => token::TokenType::Else,
+                    b"return" => token::TokenType::Retrun,
                     _ => token::TokenType::Ident,
                 };
 
@@ -111,6 +116,11 @@ mod test {
         let result = add(five, ten);
         !-/*5;
         5 < 10 > 5;
+        if (5 < 10) {
+            return true;
+        } else {
+            return false;
+        }
         "
         .to_string();
 
@@ -164,6 +174,23 @@ mod test {
             Token::new(TokenType::Gt, Bytes::from(&b">"[..])),
             Token::new(TokenType::Int, Bytes::from(&b"5"[..])),
             Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
+            Token::new(TokenType::If, Bytes::from(&b"if"[..])),
+            Token::new(TokenType::Lparne, Bytes::from(&b"("[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"5"[..])),
+            Token::new(TokenType::Lt, Bytes::from(&b"<"[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"10"[..])),
+            Token::new(TokenType::Rparne, Bytes::from(&b")"[..])),
+            Token::new(TokenType::Lbrace, Bytes::from(&b"{"[..])),
+            Token::new(TokenType::Retrun, Bytes::from(&b"return"[..])),
+            Token::new(TokenType::True, Bytes::from(&b"true"[..])),
+            Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
+            Token::new(TokenType::Rbrace, Bytes::from(&b"}"[..])),
+            Token::new(TokenType::Else, Bytes::from(&b"else"[..])),
+            Token::new(TokenType::Lbrace, Bytes::from(&b"{"[..])),
+            Token::new(TokenType::Retrun, Bytes::from(&b"return"[..])),
+            Token::new(TokenType::False, Bytes::from(&b"false"[..])),
+            Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
+            Token::new(TokenType::Rbrace, Bytes::from(&b"}"[..])),
             Token::new(TokenType::Eof, Bytes::new()),
         ]
         .iter()

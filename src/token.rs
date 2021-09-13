@@ -31,6 +31,11 @@ pub(crate) enum TokenType {
     // keyword
     Function, // FUNCTION
     Let,      // LET
+    True,     // true
+    False,    // false
+    If,       // if
+    Else,     // else
+    Retrun,   // return
 }
 
 // TODO to enum
