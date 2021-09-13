@@ -43,6 +43,7 @@ pub(crate) enum TokenType {
 }
 
 // TODO to enum
+#[derive(Debug)]
 pub(crate) struct Token {
     pub(crate) typ: TokenType,
     pub(crate) literal: Bytes,
