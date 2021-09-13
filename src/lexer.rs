@@ -26,16 +26,26 @@ impl Lexer {
         let literal = b.split_to(1);
         // １文字消費しつつ、 `u8` を取得
         // これをもとに判定する
-        let c = self.data.clone().get_u8();
-        let token = match c {
-            b'=' => token::Token::new(token::TokenType::Assign, literal),
+        let mut peek = self.data.clone();
+        let token = match peek.get_u8() {
+            b'=' => {
+                if !peek.is_empty() && peek.get_u8() == b'=' {
+                    return token::Token::new(token::TokenType::Eq, self.data.split_to(2));
+                }
+                token::Token::new(token::TokenType::Assign, literal)
+            }
             b';' => token::Token::new(token::TokenType::Semicolon, literal),
             b'(' => token::Token::new(token::TokenType::Lparne, literal),
             b')' => token::Token::new(token::TokenType::Rparne, literal),
             b',' => token::Token::new(token::TokenType::Comma, literal),
             b'+' => token::Token::new(token::TokenType::Plus, literal),
             b'-' => token::Token::new(token::TokenType::Minus, literal),
-            b'!' => token::Token::new(token::TokenType::Bang, literal),
+            b'!' => {
+                if !peek.is_empty() && peek.get_u8() == b'=' {
+                    return token::Token::new(token::TokenType::NotEq, self.data.split_to(2));
+                }
+                token::Token::new(token::TokenType::Bang, literal)
+            }
             b'/' => token::Token::new(token::TokenType::Slash, literal),
             b'*' => token::Token::new(token::TokenType::Asterisk, literal),
             b'<' => token::Token::new(token::TokenType::Lt, literal),
@@ -121,6 +131,9 @@ mod test {
         } else {
             return false;
         }
+
+        10 == 10;
+        10 != 9;
         "
         .to_string();
 
@@ -191,6 +204,14 @@ mod test {
             Token::new(TokenType::False, Bytes::from(&b"false"[..])),
             Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
             Token::new(TokenType::Rbrace, Bytes::from(&b"}"[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"10"[..])),
+            Token::new(TokenType::Eq, Bytes::from(&b"=="[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"10"[..])),
+            Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"10"[..])),
+            Token::new(TokenType::NotEq, Bytes::from(&b"!="[..])),
+            Token::new(TokenType::Int, Bytes::from(&b"9"[..])),
+            Token::new(TokenType::Semicolon, Bytes::from(&b";"[..])),
             Token::new(TokenType::Eof, Bytes::new()),
         ]
         .iter()

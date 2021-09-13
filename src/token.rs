@@ -28,6 +28,10 @@ pub(crate) enum TokenType {
 
     Lbrace, //{
     Rbrace, // }
+
+    Eq,    // ==
+    NotEq, // !=
+
     // keyword
     Function, // FUNCTION
     Let,      // LET
