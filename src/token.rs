@@ -2,6 +2,8 @@ use bytes::Bytes;
 
 #[derive(Debug, PartialEq, Eq)]
 pub(crate) enum TokenType {
+    Nop,
+
     Illegal, // ILLEGAL
     Eof,     // EOF
 
@@ -42,6 +44,10 @@ pub(crate) enum TokenType {
     Retrun,   // return
 }
 
+pub(crate) const empty: Token = Token {
+    typ: TokenType::Nop,
+    literal: Bytes::new(),
+};
 // TODO to enum
 #[derive(Debug)]
 pub(crate) struct Token {
