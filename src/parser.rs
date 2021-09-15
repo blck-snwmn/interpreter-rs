@@ -1,5 +1,3 @@
-use bytes::Bytes;
-
 use crate::{
     ast::{self, statement},
     lexer, token,
@@ -8,34 +6,34 @@ use crate::{
 struct Parser {
     l: lexer::Lexer,
     // TODO やはりOptionのほうがいい気がする。
-    cur_token: token::Token,
-    peek_token: token::Token,
+    cur_token: Option<token::Token>,
+    peek_token: Option<token::Token>,
 }
 
 impl Parser {
-    fn new(mut l: lexer::Lexer) -> Self {
-        let cur_token = l.next_token();
-        let peek_token = l.next_token();
-        Self {
+    fn new(l: lexer::Lexer) -> Self {
+        let mut p = Self {
             l,
-            cur_token,
-            peek_token,
-        }
+            cur_token: None,
+            peek_token: None,
+        };
+        p.next_token();
+        p.next_token();
+        p
     }
 
     fn next_token(&mut self) {
-        self.cur_token = std::mem::replace(&mut self.peek_token, self.l.next_token());
+        self.cur_token = std::mem::replace(&mut self.peek_token, Some(self.l.next_token()));
     }
 
     fn cur_token_is(&self, target: &token::TokenType) -> bool {
-        match &self.cur_token.typ {
-            a if a == target => true,
-            _ => false,
-        }
+        matches!(&self.cur_token, Some(token::Token { typ, literal: _ }) if typ == target)
     }
+
+    // expect_peek check peek token. this method call next_token if own token's type match target type
     fn expect_peek(&mut self, target: &token::TokenType) -> bool {
-        match &self.peek_token.typ {
-            a if a == target => {
+        match &self.peek_token {
+            Some(token::Token { typ, literal: _ }) if typ == target => {
                 self.next_token();
                 true
             }
@@ -44,11 +42,11 @@ impl Parser {
     }
 
     fn parse_let_statemet(&mut self) -> Option<statement::Statement> {
-        let token = std::mem::replace(&mut self.cur_token, token::empty);
+        let token = std::mem::replace(&mut self.cur_token, None).unwrap();
         if !self.expect_peek(&token::TokenType::Ident) {
             return None;
         }
-        let identifier_token = std::mem::replace(&mut self.cur_token, token::empty);
+        let identifier_token = std::mem::replace(&mut self.cur_token, None).unwrap();
         let name = ast::statement::Identifier::new(identifier_token);
         while !self.cur_token_is(&token::TokenType::Semicolon) {
             self.next_token()
@@ -63,8 +61,11 @@ impl Parser {
     }
 
     fn parse_statement(&mut self) -> Option<statement::Statement> {
-        match self.cur_token.typ {
-            token::TokenType::Let => self.parse_let_statemet(),
+        match self.cur_token {
+            Some(token::Token {
+                typ: token::TokenType::Let,
+                literal: _,
+            }) => self.parse_let_statemet(),
             _ => None,
         }
     }
