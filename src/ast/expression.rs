@@ -1,6 +1,8 @@
-pub(super) enum Expression {}
+pub(crate) enum Expression {
+    Nop,
+}
 impl Expression {
-    pub(super) fn token_literal(&self) -> &str {
+    pub(crate) fn token_literal(&self) -> &str {
         todo!()
     }
 }

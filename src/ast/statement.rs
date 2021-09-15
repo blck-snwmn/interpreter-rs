@@ -2,33 +2,39 @@ use crate::token;
 
 use super::expression;
 
-pub(super) enum Statement {
+pub(crate) enum Statement {
     LetStatement(LetStatement),
 }
 impl Statement {
-    pub(super) fn token_literal(&self) -> &str {
-        todo!()
+    pub(crate) fn token_literal(&self) -> &str {
+        match self {
+            Statement::LetStatement(let_statement) => let_statement.token_literal(),
+        }
     }
 }
 
-pub(super) struct LetStatement {
-    token: token::Token,
-    name: Identifier,
-    value: expression::Expression,
+pub(crate) struct LetStatement {
+    pub(crate) token: token::Token,
+    pub(crate) name: Identifier,
+    pub(crate) value: expression::Expression,
 }
 
 impl LetStatement {
-    pub(super) fn token_literal(&self) -> &str {
+    pub(crate) fn token_literal(&self) -> &str {
         std::str::from_utf8(&self.token.literal[..]).unwrap()
     }
 }
 
-struct Identifier {
+pub(crate) struct Identifier {
     token: token::Token,
 }
 
 impl Identifier {
-    pub(super) fn token_literal(&self) -> &str {
+    pub(crate) fn new(token: token::Token) -> Self {
+        Self { token }
+    }
+
+    pub(crate) fn token_literal(&self) -> &str {
         std::str::from_utf8(&self.token.literal[..]).unwrap()
     }
 }

@@ -1,5 +1,5 @@
-mod expression;
-mod statement;
+pub(crate) mod expression;
+pub(crate) mod statement;
 enum Node {
     Statement(statement::Statement),
     Expression(expression::Expression),
@@ -17,7 +17,7 @@ impl Node {
 }
 
 pub(crate) struct Program {
-    statements: Vec<statement::Statement>,
+    pub(crate) statements: Vec<statement::Statement>,
 }
 
 impl Program {
