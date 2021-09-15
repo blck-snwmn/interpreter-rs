@@ -73,7 +73,7 @@ impl Parser {
         let mut p = ast::Program {
             statements: Vec::new(),
         };
-        while self.cur_token.typ != token::TokenType::Eof {
+        while !self.cur_token_is(&token::TokenType::Eof) {
             let stmt = self.parse_statement();
             if let Some(stmt) = stmt {
                 p.statements.push(stmt);
