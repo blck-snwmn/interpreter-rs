@@ -29,17 +29,17 @@ impl Parser {
     fn cur_token_is(&self, target: &token::TokenType) -> bool {
         matches!(&self.cur_token, Some(token::Token { typ, literal: _ }) if typ == target)
     }
+    fn peek_token_is(&self, target: &token::TokenType) -> bool {
+        matches!(&self.peek_token, Some(token::Token { typ, literal: _ }) if typ == target)
+    }
 
     // expect_peek check peek token. this method call next_token if own token's type match target type
     fn expect_peek(&mut self, target: &token::TokenType) -> bool {
-        match &self.peek_token {
-            Some(token::Token { typ, literal: _ }) if typ == target => {
-                // TODO ここで進めたほうがいいのだろうか？
-                self.next_token();
-                true
-            }
-            _ => false,
+        let ok = self.peek_token_is(target);
+        if ok {
+            self.next_token();
         }
+        ok
     }
 
     fn parse_let_statemet(&mut self) -> Option<statement::Statement> {
