@@ -34,6 +34,7 @@ impl Parser {
     fn expect_peek(&mut self, target: &token::TokenType) -> bool {
         match &self.peek_token {
             Some(token::Token { typ, literal: _ }) if typ == target => {
+                // TODO ここで進めたほうがいいのだろうか？
                 self.next_token();
                 true
             }
@@ -48,6 +49,7 @@ impl Parser {
         }
         let identifier_token = std::mem::replace(&mut self.cur_token, None).unwrap();
         let name = ast::statement::Identifier::new(identifier_token);
+        // TODO 一旦セミコロンまで読み飛ばす
         while !self.cur_token_is(&token::TokenType::Semicolon) {
             self.next_token()
         }
