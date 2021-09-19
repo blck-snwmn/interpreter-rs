@@ -7,3 +7,5 @@ edition = "2018"
 
 [dependencies]
 bytes = "1"
+anyhow = "1.0"
+thiserror = "1.0"

@@ -2,11 +2,24 @@ use crate::{
     ast::{self, statement},
     lexer, token,
 };
+use anyhow::Result;
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+enum ParseError {
+    #[error("expected next token to be {want}, got {got} instead")]
+    UnexpectedPeekToken {
+        want: token::TokenType,
+        got: token::TokenType,
+    },
+}
 
 struct Parser {
     l: lexer::Lexer,
     cur_token: Option<token::Token>,
     peek_token: Option<token::Token>,
+    // TODO エラーをResultで統一したほうがいい気がしている
+    errors: Vec<ParseError>,
 }
 
 impl Parser {
@@ -15,10 +28,16 @@ impl Parser {
             l,
             cur_token: None,
             peek_token: None,
+            errors: Vec::new(),
         };
         p.next_token();
         p.next_token();
         p
+    }
+
+    fn errors(&mut self) -> Vec<ParseError> {
+        // TODO 一旦コピーせず、持っているものを返す。
+        std::mem::take(&mut self.errors)
     }
 
     fn next_token(&mut self) {
@@ -32,13 +51,22 @@ impl Parser {
         matches!(&self.peek_token, Some(token::Token { typ, literal: _ }) if typ == target)
     }
 
+    fn peek_error(&mut self, token: &token::TokenType) {
+        self.errors.push(ParseError::UnexpectedPeekToken {
+            want: token.clone(),
+            got: self.peek_token.as_ref().unwrap().typ.clone(),
+        })
+    }
+
     // expect_peek check peek token. this method call next_token if own token's type match target type
     fn expect_peek(&mut self, target: &token::TokenType) -> bool {
-        let ok = self.peek_token_is(target);
-        if ok {
+        if self.peek_token_is(target) {
             self.next_token();
+            true
+        } else {
+            self.peek_error(target);
+            false
         }
-        ok
     }
 
     fn parse_let_statemet(&mut self) -> Option<statement::Statement> {
@@ -92,6 +120,7 @@ impl Parser {
 
 #[cfg(test)]
 mod test {
+
     use crate::{ast, lexer::Lexer};
 
     use super::Parser;
@@ -108,6 +137,7 @@ mod test {
         let l = Lexer::new(input);
         let mut p = Parser::new(l);
         let program = p.parse_program();
+        check_parser_error(&mut p);
 
         assert_eq!(program.statements.len(), 3);
 
@@ -125,6 +155,22 @@ mod test {
         }
     }
 
+    #[test]
+    #[ignore = "failed test"]
+    fn test_error() {
+        let input = r"
+        let x 5;
+        let = 10;
+        let 838383;
+        "
+        .to_string();
+
+        let l = Lexer::new(input);
+        let mut p = Parser::new(l);
+        let _ = p.parse_program();
+        check_parser_error(&mut p);
+    }
+
     fn assert_let_statement(s: &ast::statement::Statement, expected_name: &str) {
         assert_eq!(s.token_literal(), "let");
 
@@ -133,5 +179,14 @@ mod test {
             _ => panic!("unexpected statement"),
         };
         assert_eq!(ls.name.token_literal(), expected_name);
+    }
+
+    fn check_parser_error(p: &mut Parser) {
+        let errors = p.errors();
+        if errors.is_empty() {
+            return;
+        }
+        errors.iter().for_each(|pe| println!("{}", pe));
+        panic!("failed");
     }
 }
