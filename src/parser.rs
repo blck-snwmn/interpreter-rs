@@ -110,19 +110,19 @@ mod test {
 
         {
             let s = program.statements.get(0).unwrap();
-            test_let_statement(s, "x")
+            assert_let_statement(s, "x")
         }
         {
             let s = program.statements.get(1).unwrap();
-            test_let_statement(s, "y")
+            assert_let_statement(s, "y")
         }
         {
             let s = program.statements.get(2).unwrap();
-            test_let_statement(s, "foobar")
+            assert_let_statement(s, "foobar")
         }
     }
 
-    fn test_let_statement(s: &ast::statement::Statement, expected_name: &str) {
+    fn assert_let_statement(s: &ast::statement::Statement, expected_name: &str) {
         assert_eq!(s.token_literal(), "let");
 
         let ls = match s {
