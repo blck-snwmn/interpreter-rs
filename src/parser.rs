@@ -5,7 +5,6 @@ use crate::{
 
 struct Parser {
     l: lexer::Lexer,
-    // TODO やはりOptionのほうがいい気がする。
     cur_token: Option<token::Token>,
     peek_token: Option<token::Token>,
 }
