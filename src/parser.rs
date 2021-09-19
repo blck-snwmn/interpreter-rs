@@ -48,6 +48,10 @@ impl Parser {
         }
         let identifier_token = std::mem::replace(&mut self.cur_token, None).unwrap();
         let name = ast::statement::Identifier::new(identifier_token);
+
+        if !self.expect_peek(&token::TokenType::Assign) {
+            return None;
+        }
         // TODO 一旦セミコロンまで読み飛ばす
         while !self.cur_token_is(&token::TokenType::Semicolon) {
             self.next_token()
