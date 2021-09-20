@@ -75,7 +75,7 @@ impl Parser {
             return None;
         }
         let identifier_token = std::mem::replace(&mut self.cur_token, None).unwrap();
-        let name = ast::statement::Identifier::new(identifier_token);
+        let name = ast::expression::Identifier::new(identifier_token);
 
         if !self.expect_peek(&token::TokenType::Assign) {
             return None;
@@ -88,7 +88,7 @@ impl Parser {
             statement::LetStatement {
                 name,
                 token,
-                value: ast::expression::Expression::Nop,
+                value: None,
             },
         ))
     }
@@ -104,7 +104,7 @@ impl Parser {
         Some(statement::Statement::ReturnStatement(
             statement::ReturnStatement {
                 token,
-                return_value: ast::expression::Expression::Nop,
+                return_value: None,
             },
         ))
     }
@@ -141,9 +141,12 @@ impl Parser {
 #[cfg(test)]
 mod test {
 
-    use crate::{ast, lexer::Lexer};
+    use bytes::Bytes;
 
     use super::Parser;
+    use crate::ast::Node;
+    use crate::token;
+    use crate::{ast, lexer::Lexer};
 
     #[test]
     fn test_let_statements() {
@@ -214,6 +217,29 @@ mod test {
             };
             assert_eq!(rs.token_literal(), "return")
         }
+    }
+
+    #[test]
+    fn test_string() {
+        let program = ast::Program {
+            statements: vec![ast::statement::Statement::LetStatement(
+                ast::statement::LetStatement {
+                    token: token::Token::new(token::TokenType::Ident, Bytes::from("let")),
+                    name: ast::expression::Identifier::new(token::Token::new(
+                        token::TokenType::Ident,
+                        Bytes::from("myVar"),
+                    )),
+                    value: Some(ast::expression::Expression::Identifier(
+                        ast::expression::Identifier::new(token::Token::new(
+                            token::TokenType::Ident,
+                            Bytes::from("anotherVar"),
+                        )),
+                    )),
+                },
+            )],
+        };
+
+        assert_eq!(program.string(), "let myVar = anotherVar;".to_string())
     }
 
     fn assert_let_statement(s: &ast::statement::Statement, expected_name: &str) {
