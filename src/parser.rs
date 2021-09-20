@@ -92,6 +92,22 @@ impl Parser {
             },
         ))
     }
+    fn parse_return_statemet(&mut self) -> Option<statement::Statement> {
+        let token = std::mem::replace(&mut self.cur_token, None).unwrap();
+
+        self.next_token();
+
+        // TODO 一旦セミコロンまで読み飛ばす
+        while !self.cur_token_is(&token::TokenType::Semicolon) {
+            self.next_token()
+        }
+        Some(statement::Statement::ReturnStatement(
+            statement::ReturnStatement {
+                token,
+                return_value: ast::expression::Expression::Nop,
+            },
+        ))
+    }
 
     fn parse_statement(&mut self) -> Option<statement::Statement> {
         match self.cur_token {
@@ -99,6 +115,10 @@ impl Parser {
                 typ: token::TokenType::Let,
                 literal: _,
             }) => self.parse_let_statemet(),
+            Some(token::Token {
+                typ: token::TokenType::Retrun,
+                literal: _,
+            }) => self.parse_return_statemet(),
             _ => None,
         }
     }
@@ -169,6 +189,31 @@ mod test {
         let mut p = Parser::new(l);
         let _ = p.parse_program();
         check_parser_error(&mut p);
+    }
+
+    #[test]
+    fn test_return_statement() {
+        let input = r"
+        return 5;
+        return 10;
+        return 993322;
+        "
+        .to_string();
+
+        let l = Lexer::new(input);
+        let mut p = Parser::new(l);
+        let program = p.parse_program();
+        check_parser_error(&mut p);
+
+        assert_eq!(program.statements.len(), 3);
+
+        for s in program.statements {
+            let rs = match &s {
+                ast::statement::Statement::ReturnStatement(rs) => rs,
+                other => panic!("unexpected statement {:?}", other),
+            };
+            assert_eq!(rs.token_literal(), "return")
+        }
     }
 
     fn assert_let_statement(s: &ast::statement::Statement, expected_name: &str) {
